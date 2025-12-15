@@ -1,5 +1,5 @@
 //@name desktoppet
-//@display-name 🍄RisuShimeji v1.5.9
+//@display-name 🍄RisuShimeji v1.5.10
 
 // ============================================
 // Desktop Pet Plugin for RisuAI
@@ -14,11 +14,26 @@ class PetManager {
         this.petConfigs = [];
         this.modal = null;
         this.modalOverlay = null;
+
+        // --- NEW: Sidebar Button Properties ---
+        this.useSidebarButton = false;
+        this.sidebarButton = null;
+        this.sidebarButtonObserver = null;
         this.floatingBtn = null;
-        this.createFloatingButton();
+
+        // --- MODIFIED: Load setting and initialize correct button type ---
+        this.useSidebarButton = localStorage.getItem('petUseSidebarButton') === 'true';
+
+        if (this.useSidebarButton) {
+            this.initSidebarButton();
+        } else {
+            this.createFloatingButton();
+        }
     }
 
     createFloatingButton() {
+        if (this.floatingBtn) return; // Don't create if it already exists
+
         this.floatingBtn = document.createElement('div');
         this.floatingBtn.className = 'pet-floating-btn';
         this.floatingBtn.innerHTML = '🐾';
@@ -38,7 +53,7 @@ class PetManager {
         let wasDragged = false;
         let startX, startY, btnX, btnY;
 
-        this.floatingBtn.addEventListener('mousedown', (e) => {
+        const onStart = (e) => {
             isDragging = true;
             wasDragged = false;
             startX = e.clientX;
@@ -50,24 +65,30 @@ class PetManager {
             this.floatingBtn.style.bottom = 'auto';
             this.floatingBtn.style.left = `${btnX}px`;
             this.floatingBtn.style.top = `${btnY}px`;
-        });
+        };
 
-        document.addEventListener('mousemove', (e) => {
+        const onMove = (e) => {
             if (!isDragging) return;
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
             if (Math.abs(dx) > 5 || Math.abs(dy) > 5) wasDragged = true;
             this.floatingBtn.style.left = `${btnX + dx}px`;
             this.floatingBtn.style.top = `${btnY + dy}px`;
-        });
+        };
 
-        document.addEventListener('mouseup', () => {
-            if (isDragging) {
+        const onEnd = () => {
+             if (isDragging) {
                 isDragging = false;
-                const rect = this.floatingBtn.getBoundingClientRect();
-                localStorage.setItem('petBtnPos', JSON.stringify({ x: rect.left, y: rect.top }));
+                if(wasDragged) {
+                    const rect = this.floatingBtn.getBoundingClientRect();
+                    localStorage.setItem('petBtnPos', JSON.stringify({ x: rect.left, y: rect.top }));
+                }
             }
-        });
+        };
+
+        this.floatingBtn.addEventListener('mousedown', onStart);
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onEnd);
 
         this.floatingBtn.addEventListener('click', (e) => {
             if (!wasDragged) {
@@ -76,6 +97,102 @@ class PetManager {
         });
 
         document.body.appendChild(this.floatingBtn);
+    }
+
+    // --- NEW: All functions below for sidebar button management ---
+
+    initSidebarButton() {
+        if (this.sidebarButtonObserver) return; // Observer already running
+
+        this.sidebarButtonObserver = new MutationObserver(() => {
+            if (this.useSidebarButton && !document.getElementById('pet-sidebar-btn')) {
+                this.createSidebarButton();
+            }
+        });
+
+        // Observe the body to catch when the sidebar is added to the DOM
+        this.sidebarButtonObserver.observe(document.body, { childList: true, subtree: true });
+
+        // Try to create it immediately in case the sidebar is already present
+        this.createSidebarButton();
+    }
+
+    createSidebarButton() {
+        if (document.getElementById('pet-sidebar-btn')) return;
+
+        const target = document.querySelector('.rs-sidebar .flex.flex-col.items-center.space-y-2.px-2') ||
+                       document.querySelector('.rs-sidebar .px-2') ||
+                       document.querySelector('.rs-sidebar');
+
+        if (!target) return; // Sidebar not found yet
+
+        const btn = document.createElement('button');
+        btn.id = 'pet-sidebar-btn';
+        btn.title = 'Pet Manager';
+        btn.innerHTML = `🐾`;
+        Object.assign(btn.style, {
+            height: '56px',
+            width: '56px',
+            fontSize: '24px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '9999px',
+            border: '1px solid #4b5563',
+            color: '#fbbf24', // A nice gold/yellow for the paw
+            background: 'transparent',
+            marginTop: '8px',
+            padding: '0'
+        });
+
+        btn.addEventListener('mouseover', () => {
+            btn.style.borderColor = '#fbbf24';
+            btn.style.color = '#fff';
+        });
+        btn.addEventListener('mouseout', () => {
+            btn.style.borderColor = '#4b5563';
+            btn.style.color = '#fbbf24';
+        });
+
+        btn.onclick = () => this.openManagerModal();
+
+        target.appendChild(btn);
+        this.sidebarButton = btn;
+    }
+
+    removeSidebarButton() {
+        if (this.sidebarButton) {
+            this.sidebarButton.remove();
+            this.sidebarButton = null;
+        }
+    }
+
+    stopSidebarObserver() {
+        if (this.sidebarButtonObserver) {
+            this.sidebarButtonObserver.disconnect();
+            this.sidebarButtonObserver = null;
+        }
+    }
+
+    toggleSidebarButton(enabled) {
+        this.useSidebarButton = enabled;
+        localStorage.setItem('petUseSidebarButton', enabled ? 'true' : 'false');
+
+        if (enabled) {
+            // Switch TO sidebar button
+            if (this.floatingBtn) this.floatingBtn.style.display = 'none';
+            this.initSidebarButton();
+        } else {
+            // Switch TO floating button
+            this.stopSidebarObserver();
+            this.removeSidebarButton();
+            if (this.floatingBtn) {
+                this.floatingBtn.style.display = 'flex';
+            } else {
+                this.createFloatingButton();
+            }
+        }
     }
 
     openManagerModal() {
@@ -96,6 +213,15 @@ class PetManager {
                 <span>Enable Pets</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="pets-enabled" ${this.enabled ? 'checked' : ''}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- NEW: Sidebar button toggle -->
+            <div class="pet-toggle-row">
+                <span>Use Sidebar Button</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="sidebar-button-toggle" ${this.useSidebarButton ? 'checked' : ''}>
                     <span class="toggle-slider"></span>
                 </label>
             </div>
@@ -126,6 +252,11 @@ class PetManager {
             this.enabled = e.target.checked;
             this.pets.forEach(p => p.element.style.display = this.enabled ? 'block' : 'none');
             localStorage.setItem('petsEnabled', this.enabled);
+        });
+
+        // --- NEW: Event listener for the new toggle ---
+        modal.querySelector('#sidebar-button-toggle').addEventListener('change', (e) => {
+            this.toggleSidebarButton(e.target.checked);
         });
 
         this.renderPetTypes();
@@ -253,7 +384,7 @@ class PetManager {
 
         return pet;
     }
-    
+
     clonePetWithConfig(sourcePet) {
         if (this.pets.length >= this.maxPets) {
             console.warn(`Maximum pets (${this.maxPets}) reached!`);
@@ -445,7 +576,7 @@ class PetManager {
     broadcastReaction(content) {
         this.pets.forEach(pet => pet.reactToContent(content));
     }
-    
+
     exportPetConfig(configIndex) {
         const config = this.petConfigs[configIndex];
         if (!config) return;
@@ -467,14 +598,22 @@ class PetManager {
     }
 
     destroy() {
-        [...this.pets].forEach(p => this.removePet(p));
+        // --- MODIFIED: Cleanup new resources ---
+        this.stopSidebarObserver();
+        this.removeSidebarButton();
         if (this.floatingBtn) this.floatingBtn.remove();
+
+        [...this.pets].forEach(p => this.removePet(p));
         this.closeManagerModal();
-        // Also remove the stylesheet for full cleanup
+
         const style = document.getElementById('desktop-pet-styles');
         if (style) style.remove();
     }
 }
+
+// ... The rest of the DesktopPet class remains unchanged ...
+// NOTE: I've included the full DesktopPet class below for completeness,
+// but no changes were needed within it.
 
 class DesktopPet {
     constructor(options = {}) {
@@ -720,7 +859,7 @@ class DesktopPet {
     // ========================================
 
     createElement() {
-		
+
         this.element = document.createElement('div');
         this.element.className = 'desktop-pet-container';
         this.element.dataset.petId = this.id;
@@ -1138,7 +1277,7 @@ class DesktopPet {
         this.updateSprite();
         this.updatePosition();
     }
-  
+
   updateDisplaySize() {
         // Read spriteSize from config, or default to 64
         this.size = this.config.spriteSize || 64;
@@ -1146,7 +1285,7 @@ class DesktopPet {
             this.element.style.setProperty('--pet-size', `${this.size}px`);
         }
     }
-	
+
     clonePet() {
         if (this.manager) {
             const newPet = this.manager.clonePetWithConfig(this);
@@ -1591,26 +1730,26 @@ updateSprite() {
 
         // spriteSize is the size of ONE frame in the source spritesheet
         const spriteSize = this.config.spriteSize || 128;
-        
+
         // Calculate the frame position in the spritesheet
         const frameIndex = this.animationFrame % spriteConfig.frames;
         const xOffset = frameIndex * spriteSize;
         const yOffset = (spriteConfig.row || 0) * spriteSize;
-        
+
         // Get spritesheet dimensions
         const totalColumns = this.config.spriteColumns || Math.max(...Object.values(this.config.sprites).map(s => s.frames || 1));
         const totalRows = Math.max(...Object.values(this.config.sprites).map(s => (s.row || 0) + 1));
-        
+
         // Calculate the scale factor between display size and sprite size
         const scale = this.size / spriteSize;
-        
+
         // Set background size to scale the entire spritesheet proportionally
         const bgWidth = spriteSize * totalColumns * scale;
         const bgHeight = spriteSize * totalRows * scale;
-        
+
         this.spriteElement.style.backgroundSize = `${bgWidth}px ${bgHeight}px`;
         this.spriteElement.style.backgroundPosition = `-${xOffset * scale}px -${yOffset * scale}px`;
-        
+
         this.spriteElement.style.width = `${this.size}px`;
         this.spriteElement.style.height = `${this.size}px`;
     } else {
@@ -1886,11 +2025,11 @@ updateSprite() {
         if (isNaN(deltaTime) || deltaTime > 100) deltaTime = 16.67;
 
         const spriteConfig = this.config.sprites[this.state] || this.config.sprites.idle;
-		
-		
+
+
     // Debug: Uncomment to verify animation is cycling
      // console.log(`State: ${this.state}, Frame: ${this.animationFrame}, Timer: ${this.frameTimer}`);
-	
+
         this.frameTimer += deltaTime;
         if (this.frameTimer >= spriteConfig.speed) {
             this.frameTimer = 0;
@@ -2087,6 +2226,7 @@ updateSprite() {
     }
 }
 
+
 // ============================================
 // Plugin Initialization
 // ============================================
@@ -2096,7 +2236,7 @@ let petManager = null;
 function initPets() {
     // Prevent multiple initializations
     if (petManager) return;
-    
+
     petManager = new PetManager();
     petManager.loadPetConfigs();
 
