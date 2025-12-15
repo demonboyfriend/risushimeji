@@ -1077,7 +1077,7 @@
                         <input type="text" class="editor-item-title" value="${name}" placeholder="Animation name (e.g., idle)"
                                style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
                         <div class="editor-item-actions">
-                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                            <button class="btn btn-danger btn-sm" onclick="removeItem(this.closest('.editor-item').id)">🗑️ Remove</button>
                         </div>
                     </div>
                     <div class="inline-input">
@@ -1120,7 +1120,7 @@
                         <input type="text" class="editor-item-title" value="${name}" placeholder="Behavior name (e.g., idle)"
                                style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
                         <div class="editor-item-actions">
-                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                            <button class="btn btn-danger btn-sm" onclick="removeItem(this.closest('.editor-item').id)">🗑️ Remove</button>
                         </div>
                     </div>
                     <div class="inline-input" style="margin-bottom: 15px;">
@@ -1201,7 +1201,7 @@
                         <input type="text" class="editor-item-title" value="${category}" placeholder="Category (e.g., idle)"
                                style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
                         <div class="editor-item-actions">
-                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                            <button class="btn btn-danger btn-sm" onclick="removeItem(this.closest('.editor-item').id)">🗑️ Remove</button>
                         </div>
                     </div>
                     <div class="tag-input-container">
@@ -1219,17 +1219,18 @@
             input.addEventListener('keydown', handleTagInput);
         }
 
-        function handleTagInput(e) {
-            if (e.key === 'Enter' && e.target.value.trim()) {
-                e.preventDefault();
-                const container = e.target.parentElement;
-                const tag = document.createElement('span');
-                tag.className = 'tag';
-                tag.innerHTML = `${escapeHtml(e.target.value.trim())}<span class="remove-tag" onclick="this.parentElement.remove()">✕</span>`;
-                container.insertBefore(tag, e.target);
-                e.target.value = '';
-            }
-        }
+function handleTagInput(e) {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+        e.preventDefault();
+        e.stopPropagation();
+        const container = e.target.parentElement;
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.innerHTML = `${escapeHtml(e.target.value.trim())}<span class="remove-tag" onclick="this.parentElement.remove()">✕</span>`;
+        container.insertBefore(tag, e.target);
+        e.target.value = '';
+    }
+}
 
         function collectPhrases() {
             const phrases = {};
@@ -1263,7 +1264,7 @@
                         <input type="text" class="editor-item-title" value="${name}" placeholder="Reaction name (e.g., happy)"
                                style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
                         <div class="editor-item-actions">
-                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                            <button class="btn btn-danger btn-sm" onclick="removeItem(this.closest('.editor-item').id)">🗑️ Remove</button>
                         </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 15px;">
@@ -1336,7 +1337,7 @@
                         <input type="text" class="editor-item-title" value="${category}" placeholder="Category (e.g., idle)"
                                style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
                         <div class="editor-item-actions">
-                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                            <button class="btn btn-danger btn-sm" onclick="removeItem(this.closest('.editor-item').id)">🗑️ Remove</button>
                         </div>
                     </div>
                     <div class="tag-input-container">
@@ -1834,6 +1835,12 @@
                 el.addEventListener('change', () => {
                     if (document.querySelector('.tab[data-tab="export"]').classList.contains('active')) {
                         updateJSONPreview();
+        // Enter to add tags
+                        document.addEventListener('keydown', (e) => {
+    if (e.target.classList.contains('tag-input') && e.key === 'Enter') {
+        handleTagInput(e);
+    }
+}, true);
                     }
                 });
             });
@@ -1841,6 +1848,8 @@
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
+
+
             // Ctrl+S to download JSON
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
