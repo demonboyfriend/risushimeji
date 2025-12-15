@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop Pet Config Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #475569;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-muted);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: var(--bg-card);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: var(--bg-input);
+            color: var(--text);
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin: 20px 0 15px 0;
+            color: var(--text);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #16a34a;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-input);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* Spritesheet Editor */
+        .spritesheet-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .spritesheet-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sprite-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sprite-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .sprite-upload-area.dragover {
+            border-color: var(--secondary);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .sprite-frames {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            min-height: 100px;
+            padding: 15px;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .sprite-frame {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: move;
+        }
+
+        .sprite-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .sprite-frame .remove-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sprite-frame .frame-number {
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        .spritesheet-preview {
+            background: repeating-conic-gradient(#333 0% 25%, #444 0% 50%) 50% / 20px 20px;
+            border-radius: 8px;
+            overflow: auto;
+            max-height: 500px;
+            position: relative;
+        }
+
+        .spritesheet-preview canvas {
+            display: block;
+        }
+
+        .row-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .row-label {
+            min-width: 120px;
+            font-weight: 500;
+        }
+
+        /* Behavior/Animation Editor */
+        .editor-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .editor-item {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .editor-item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .editor-item-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .editor-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .inline-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .inline-input label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .inline-input input {
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            width: 100px;
+        }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .tag .remove-tag {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .tag .remove-tag:hover {
+            opacity: 1;
+        }
+
+        .tag-input {
+            flex: 1;
+            min-width: 100px;
+            padding: 6px;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .tag-input:focus {
+            outline: none;
+        }
+
+        .weight-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: var(--bg-card);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .weight-row select {
+            flex: 1;
+            padding: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+        }
+
+        .weight-row input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+        }
+
+        /* JSON Preview */
+        .json-preview {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            overflow: auto;
+            max-height: 600px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: #000;
+            color: white;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+
+        /* Collapsible sections */
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 15px;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .collapsible-header:hover {
+            background: var(--bg-input);
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 15px;
+        }
+
+        .collapsible-content.open {
+            display: block;
+        }
+
+        .chevron {
+            transition: transform 0.2s;
+        }
+
+        .chevron.open {
+            transform: rotate(180deg);
+        }
+
+        /* Import/Export */
+        .import-export-area {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        /* Sprite Row Editor */
+        .sprite-row {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .sprite-row-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .sprite-row-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sprite-row-title select {
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+        }
+
+        .frames-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            min-height: 80px;
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+
+        .frame-slot {
+            width: 64px;
+            height: 64px;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .frame-slot:hover {
+            border-color: var(--primary);
+        }
+
+        .frame-slot.has-image {
+            border-style: solid;
+        }
+
+        .frame-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .frame-slot .add-icon {
+            font-size: 24px;
+            color: var(--text-muted);
+        }
+
+        .add-frame-btn {
+            width: 64px;
+            height: 64px;
+            border: 2px dashed var(--secondary);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--secondary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-frame-btn:hover {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐾 Desktop Pet Config Creator</h1>
+            <p>Create and customize your desktop pet configuration file</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="meta">📋 Meta Info</button>
+            <button class="tab" data-tab="spritesheet">🎨 Spritesheet</button>
+            <button class="tab" data-tab="physics">⚡ Physics</button>
+            <button class="tab" data-tab="sprites">🖼️ Sprites</button>
+            <button class="tab" data-tab="behaviors">🎭 Behaviors</button>
+            <button class="tab" data-tab="phrases">💬 Phrases</button>
+            <button class="tab" data-tab="reactions">🎯 Reactions</button>
+            <button class="tab" data-tab="emojis">😀 Emojis</button>
+            <button class="tab" data-tab="advanced">⚙️ Advanced</button>
+            <button class="tab" data-tab="export">📤 Export</button>
+        </div>
+
+        <!-- Meta Info Tab -->
+        <div class="tab-content active" id="tab-meta">
+            <div class="card">
+                <h2>📋 Character Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Character Name</label>
+                        <input type="text" id="meta-name" placeholder="My Pet" value="My Pet">
+                    </div>
+                    <div class="form-group">
+                        <label>Author</label>
+                        <input type="text" id="meta-author" placeholder="Your name" value="Anonymous">
+                    </div>
+                    <div class="form-group">
+                        <label>Version</label>
+                        <input type="text" id="meta-version" placeholder="1.0.0" value="1.0.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" id="meta-description" placeholder="A cute desktop pet">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🖼️ Spritesheet Settings</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Spritesheet URL</label>
+                        <input type="url" id="spritesheet-url" placeholder="https://example.com/spritesheet.png">
+                    </div>
+                    <div class="form-group">
+                        <label>Sprite Size (px)</label>
+                        <input type="number" id="sprite-size" value="128" min="16" max="512">
+                    </div>
+                    <div class="form-group">
+                        <label>Sprite Columns</label>
+                        <input type="number" id="sprite-columns" value="4" min="1" max="32">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spritesheet Tab -->
+        <div class="tab-content" id="tab-spritesheet">
+            <div class="card">
+                <h2>🎨 Spritesheet Generator</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Upload individual frames and arrange them into rows. Each row represents a different animation state.
+                </p>
+
+                <div class="form-grid" style="margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label>Frame Width (px)</label>
+                        <input type="number" id="frame-width" value="128" min="16" max="512">
+                    </div>
+                    <div class="form-group">
+                        <label>Frame Height (px)</label>
+                        <input type="number" id="frame-height" value="128" min="16" max="512">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Frames per Row</label>
+                        <input type="number" id="max-frames-row" value="4" min="1" max="16">
+                    </div>
+                </div>
+
+                <div id="sprite-rows-container">
+                    <!-- Sprite rows will be added here dynamically -->
+                </div>
+
+                <button class="btn btn-primary" onclick="addSpriteRow()" style="margin-top: 15px;">
+                    ➕ Add Animation Row
+                </button>
+
+                <h3 style="margin-top: 30px;">Preview</h3>
+                <div class="spritesheet-preview" id="spritesheet-preview">
+                    <canvas id="spritesheet-canvas"></canvas>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-secondary" onclick="generateSpritesheet()">🔄 Generate Spritesheet</button>
+                    <button class="btn btn-primary" onclick="downloadSpritesheet()">💾 Download PNG</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Physics Tab -->
+        <div class="tab-content" id="tab-physics">
+            <div class="card">
+                <h2>⚡ Physics Settings</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Gravity</label>
+                        <input type="number" id="physics-gravity" value="0.5" step="0.1" min="0" max="5">
+                    </div>
+                    <div class="form-group">
+                        <label>Min Walk Speed</label>
+                        <input type="number" id="physics-walk-min" value="1" step="0.1" min="0" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Walk Speed</label>
+                        <input type="number" id="physics-walk-max" value="2" step="0.1" min="0" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Jump Force</label>
+                        <input type="number" id="physics-jump" value="10" step="0.5" min="0" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label>Climb Speed</label>
+                        <input type="number" id="physics-climb" value="2" step="0.1" min="0" max="10">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sprites Tab -->
+        <div class="tab-content" id="tab-sprites">
+            <div class="card">
+                <h2>🖼️ Sprite Animations</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Define animation properties for each behavior state. Row numbers correspond to your spritesheet rows (0-indexed).
+                </p>
+
+                <div class="editor-list" id="sprites-list">
+                    <!-- Sprite entries will be added here -->
+                </div>
+
+                <button class="btn btn-primary" onclick="addSprite()" style="margin-top: 15px;">
+                    ➕ Add Sprite Animation
+                </button>
+            </div>
+        </div>
+
+        <!-- Behaviors Tab -->
+        <div class="tab-content" id="tab-behaviors">
+            <div class="card">
+                <h2>🎭 Behavior States</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Define how long each behavior lasts and what behaviors can follow it.
+                </p>
+
+                <div class="editor-list" id="behaviors-list">
+                    <!-- Behavior entries will be added here -->
+                </div>
+
+                <button class="btn btn-primary" onclick="addBehavior()" style="margin-top: 15px;">
+                    ➕ Add Behavior
+                </button>
+            </div>
+        </div>
+
+        <!-- Phrases Tab -->
+        <div class="tab-content" id="tab-phrases">
+            <div class="card">
+                <h2>💬 Phrases</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Add phrases your pet will say during different states. Press Enter to add a phrase.
+                </p>
+
+                <div class="editor-list" id="phrases-list">
+                    <!-- Phrase entries will be added here -->
+                </div>
+
+                <button class="btn btn-primary" onclick="addPhraseCategory()" style="margin-top: 15px;">
+                    ➕ Add Phrase Category
+                </button>
+            </div>
+        </div>
+
+        <!-- Reactions Tab -->
+        <div class="tab-content" id="tab-reactions">
+            <div class="card">
+                <h2>🎯 Reactions</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Define how your pet reacts to specific trigger words.
+                </p>
+
+                <div class="editor-list" id="reactions-list">
+                    <!-- Reaction entries will be added here -->
+                </div>
+
+                <button class="btn btn-primary" onclick="addReaction()" style="margin-top: 15px;">
+                    ➕ Add Reaction
+                </button>
+            </div>
+        </div>
+
+        <!-- Emojis Tab -->
+        <div class="tab-content" id="tab-emojis">
+            <div class="card">
+                <h2>😀 Emojis</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Add emojis that correspond to each behavior state.
+                </p>
+
+                <div class="editor-list" id="emojis-list">
+                    <!-- Emoji entries will be added here -->
+                </div>
+
+                <button class="btn btn-primary" onclick="addEmojiCategory()" style="margin-top: 15px;">
+                    ➕ Add Emoji Category
+                </button>
+            </div>
+        </div>
+
+        <!-- Advanced Tab -->
+        <div class="tab-content" id="tab-advanced">
+            <div class="card">
+                <h2>🎮 Platform Behavior</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Enable Platform Behavior</label>
+                        <select id="platform-enabled">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Prefer Platforms</label>
+                        <select id="platform-prefer">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Platform Jump Chance</label>
+                        <input type="number" id="platform-jump-chance" value="0.3" step="0.1" min="0" max="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Edge Padding</label>
+                        <input type="number" id="platform-edge-padding" value="10" min="0" max="50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>✋ Petting Configuration</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Stroke Threshold</label>
+                        <input type="number" id="petting-stroke" value="20" min="1" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Direction Change Threshold</label>
+                        <input type="number" id="petting-direction" value="3" min="1" max="20">
+                    </div>
+                    <div class="form-group">
+                        <label>Happy Threshold</label>
+                        <input type="number" id="petting-happy" value="5" min="1" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label>Ecstatic Threshold</label>
+                        <input type="number" id="petting-ecstatic" value="12" min="1" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Decay Rate (ms)</label>
+                        <input type="number" id="petting-decay" value="500" min="100" max="5000">
+                    </div>
+                    <div class="form-group">
+                        <label>Enable Particles</label>
+                        <select id="petting-particles">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Tab -->
+        <div class="tab-content" id="tab-export">
+            <div class="card">
+                <h2>📤 Import / Export</h2>
+
+                <div class="import-export-area" style="margin-bottom: 20px;">
+                    <button class="btn btn-outline" onclick="document.getElementById('import-file').click()">
+                        📥 Import JSON
+                    </button>
+                    <input type="file" id="import-file" class="hidden-input" accept=".json" onchange="importJSON(event)">
+                    <button class="btn btn-primary" onclick="downloadJSON()">💾 Download JSON</button>
+                    <button class="btn btn-secondary" onclick="copyJSON()">📋 Copy to Clipboard</button>
+                </div>
+
+                <h3 style="margin: 20px 0 15px 0;">JSON Preview</h3>
+                <div class="json-preview" id="json-preview">
+                    <!-- JSON preview will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Modal for adding items -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal" id="modal-content">
+            <!-- Modal content will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // ==================== STATE MANAGEMENT ====================
+        const state = {
+            sprites: {},
+            behaviors: {},
+            phrases: {},
+            reactions: {},
+            emojis: {},
+            spriteRows: []
+        };
+
+        // Default behavior states
+        const defaultBehaviors = ['idle', 'walk', 'sit', 'jump', 'fall', 'climb', 'sleep', 'drag', 'platformIdle', 'platformWalk'];
+        const defaultPhraseCategories = ['idle', 'walk', 'sit', 'jump', 'fall', 'drag', 'happy', 'platform', 'petted', 'pettedHappy', 'pettedEcstatic', 'pettedEnd'];
+
+        // ==================== TAB NAVIGATION ====================
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+
+                if (tab.dataset.tab === 'export') {
+                    updateJSONPreview();
+                }
+            });
+        });
+
+        // ==================== NOTIFICATION ====================
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification show' + (isError ? ' error' : '');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==================== SPRITES MANAGEMENT ====================
+        function addSprite(name = '', frames = 2, speed = 500, row = 0) {
+            const id = 'sprite-' + Date.now();
+            const container = document.getElementById('sprites-list');
+
+            const html = `
+                <div class="editor-item" id="${id}">
+                    <div class="editor-item-header">
+                        <input type="text" class="editor-item-title" value="${name}" placeholder="Animation name (e.g., idle)"
+                               style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
+                        <div class="editor-item-actions">
+                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                        </div>
+                    </div>
+                    <div class="inline-input">
+                        <label>Frames:</label>
+                        <input type="number" class="sprite-frames" value="${frames}" min="1" max="32">
+                        <label>Speed (ms):</label>
+                        <input type="number" class="sprite-speed" value="${speed}" min="50" max="5000">
+                        <label>Row:</label>
+                        <input type="number" class="sprite-row" value="${row}" min="0" max="100">
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function collectSprites() {
+            const sprites = {};
+            document.querySelectorAll('#sprites-list .editor-item').forEach(item => {
+                const name = item.querySelector('.editor-item-title').value.trim();
+                if (name) {
+                    sprites[name] = {
+                        frames: parseInt(item.querySelector('.sprite-frames').value) || 1,
+                        speed: parseInt(item.querySelector('.sprite-speed').value) || 500,
+                        row: parseInt(item.querySelector('.sprite-row').value) || 0
+                    };
+                }
+            });
+            return sprites;
+        }
+
+        // ==================== BEHAVIORS MANAGEMENT ====================
+        function addBehavior(name = '', durationMin = 2000, durationMax = 5000, nextStates = [], weights = []) {
+            const id = 'behavior-' + Date.now();
+            const container = document.getElementById('behaviors-list');
+
+            const html = `
+                <div class="editor-item" id="${id}">
+                    <div class="editor-item-header">
+                        <input type="text" class="editor-item-title" value="${name}" placeholder="Behavior name (e.g., idle)"
+                               style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
+                        <div class="editor-item-actions">
+                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                        </div>
+                    </div>
+                    <div class="inline-input" style="margin-bottom: 15px;">
+                        <label>Duration Min (ms):</label>
+                        <input type="number" class="duration-min" value="${durationMin}" min="100" max="60000">
+                        <label>Duration Max (ms):</label>
+                        <input type="number" class="duration-max" value="${durationMax}" min="100" max="60000">
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <label style="display: block; margin-bottom: 10px; color: var(--text-muted);">Next States & Weights:</label>
+                        <div class="next-states-container">
+                            ${nextStates.map((state, i) => createWeightRow(state, weights[i] || 0.5)).join('')}
+                        </div>
+                        <button class="btn btn-outline btn-sm" onclick="addNextState(this)" style="margin-top: 10px;">
+                            ➕ Add Next State
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function createWeightRow(state = '', weight = 0.5) {
+            return `
+                <div class="weight-row">
+                    <input type="text" class="next-state-name" value="${state}" placeholder="State name">
+                    <input type="number" class="next-state-weight" value="${weight}" step="0.1" min="0" max="1" placeholder="Weight">
+                    <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            `;
+        }
+
+        function addNextState(button) {
+            const container = button.previousElementSibling;
+            container.insertAdjacentHTML('beforeend', createWeightRow());
+        }
+
+        function collectBehaviors() {
+            const behaviors = {};
+            document.querySelectorAll('#behaviors-list .editor-item').forEach(item => {
+                const name = item.querySelector('.editor-item-title').value.trim();
+                if (name) {
+                    const nextStates = [];
+                    const weights = [];
+                    item.querySelectorAll('.weight-row').forEach(row => {
+                        const stateName = row.querySelector('.next-state-name').value.trim();
+                        const weight = parseFloat(row.querySelector('.next-state-weight').value) || 0.5;
+                        if (stateName) {
+                            nextStates.push(stateName);
+                            weights.push(weight);
+                        }
+                    });
+
+                    behaviors[name] = {
+                        duration: [
+                            parseInt(item.querySelector('.duration-min').value) || 2000,
+                            parseInt(item.querySelector('.duration-max').value) || 5000
+                        ],
+                        next: nextStates,
+                        weights: weights
+                    };
+                }
+            });
+            return behaviors;
+        }
+
+        // ==================== PHRASES MANAGEMENT ====================
+        function addPhraseCategory(category = '', phrases = []) {
+            const id = 'phrase-' + Date.now();
+            const container = document.getElementById('phrases-list');
+
+            const phraseTags = phrases.map(p => `<span class="tag">${escapeHtml(p)}<span class="remove-tag" onclick="this.parentElement.remove()">✕</span></span>`).join('');
+
+            const html = `
+                <div class="editor-item" id="${id}">
+                    <div class="editor-item-header">
+                        <input type="text" class="editor-item-title" value="${category}" placeholder="Category (e.g., idle)"
+                               style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
+                        <div class="editor-item-actions">
+                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                        </div>
+                    </div>
+                    <div class="tag-input-container">
+                        ${phraseTags}
+                        <input type="text" class="tag-input" placeholder="Type a phrase and press Enter">
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+
+            // Add event listener for the new input
+            const newItem = document.getElementById(id);
+            const input = newItem.querySelector('.tag-input');
+            input.addEventListener('keydown', handleTagInput);
+        }
+
+        function handleTagInput(e) {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                e.preventDefault();
+                const container = e.target.parentElement;
+                const tag = document.createElement('span');
+                tag.className = 'tag';
+                tag.innerHTML = `${escapeHtml(e.target.value.trim())}<span class="remove-tag" onclick="this.parentElement.remove()">✕</span>`;
+                container.insertBefore(tag, e.target);
+                e.target.value = '';
+            }
+        }
+
+        function collectPhrases() {
+            const phrases = {};
+            document.querySelectorAll('#phrases-list .editor-item').forEach(item => {
+                const category = item.querySelector('.editor-item-title').value.trim();
+                if (category) {
+                    const phraseList = [];
+                    item.querySelectorAll('.tag').forEach(tag => {
+                        const text = tag.childNodes[0].textContent.trim();
+                        if (text) phraseList.push(text);
+                    });
+                    if (phraseList.length > 0) {
+                        phrases[category] = phraseList;
+                    }
+                }
+            });
+            return phrases;
+        }
+
+        // ==================== REACTIONS MANAGEMENT ====================
+        function addReaction(name = '', triggers = [], action = 'idle', phrases = []) {
+            const id = 'reaction-' + Date.now();
+            const container = document.getElementById('reactions-list');
+
+            const triggerTags = triggers.map(t => `<span class="tag">${escapeHtml(t)}<span class="remove-tag" onclick="this.parentElement.remove()">✕</span></span>`).join('');
+            const phraseTags = phrases.map(p => `<span class="tag">${escapeHtml(p)}<span class="remove-tag" onclick="this.parentElement.remove()">✕</span></span>`).join('');
+
+            const html = `
+                <div class="editor-item" id="${id}">
+                    <div class="editor-item-header">
+                        <input type="text" class="editor-item-title" value="${name}" placeholder="Reaction name (e.g., happy)"
+                               style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
+                        <div class="editor-item-actions">
+                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Action</label>
+                        <input type="text" class="reaction-action" value="${action}" placeholder="Action to perform">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: var(--text-muted);">Trigger Words (press Enter to add):</label>
+                        <div class="tag-input-container triggers-container">
+                            ${triggerTags}
+                            <input type="text" class="tag-input" placeholder="Add trigger word">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; color: var(--text-muted);">Phrases (press Enter to add):</label>
+                        <div class="tag-input-container phrases-container">
+                            ${phraseTags}
+                            <input type="text" class="tag-input" placeholder="Add phrase">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+
+            // Add event listeners
+            const newItem = document.getElementById(id);
+            newItem.querySelectorAll('.tag-input').forEach(input => {
+                input.addEventListener('keydown', handleTagInput);
+            });
+        }
+
+        function collectReactions() {
+            const reactions = {};
+            document.querySelectorAll('#reactions-list .editor-item').forEach(item => {
+                const name = item.querySelector('.editor-item-title').value.trim();
+                if (name) {
+                    const triggers = [];
+                    item.querySelector('.triggers-container').querySelectorAll('.tag').forEach(tag => {
+                        const text = tag.childNodes[0].textContent.trim();
+                        if (text) triggers.push(text);
+                    });
+
+                    const phrases = [];
+                    item.querySelector('.phrases-container').querySelectorAll('.tag').forEach(tag => {
+                        const text = tag.childNodes[0].textContent.trim();
+                        if (text) phrases.push(text);
+                    });
+
+                    reactions[name] = {
+                        triggers: triggers,
+                        action: item.querySelector('.reaction-action').value.trim() || 'idle',
+                        phrases: phrases
+                    };
+                }
+            });
+            return reactions;
+        }
+
+        // ==================== EMOJIS MANAGEMENT ====================
+        function addEmojiCategory(category = '', emojis = []) {
+            const id = 'emoji-' + Date.now();
+            const container = document.getElementById('emojis-list');
+
+            const emojiTags = emojis.map(e => `<span class="tag">${e}<span class="remove-tag" onclick="this.parentElement.remove()">✕</span></span>`).join('');
+
+            const html = `
+                <div class="editor-item" id="${id}">
+                    <div class="editor-item-header">
+                        <input type="text" class="editor-item-title" value="${category}" placeholder="Category (e.g., idle)"
+                               style="background: transparent; border: none; color: var(--primary); font-size: 1.1rem; font-weight: 600;">
+                        <div class="editor-item-actions">
+                            <button class="btn btn-danger btn-sm" onclick="removeItem('${id}')">🗑️ Remove</button>
+                        </div>
+                    </div>
+                    <div class="tag-input-container">
+                        ${emojiTags}
+                        <input type="text" class="tag-input" placeholder="Add emoji">
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+
+            const newItem = document.getElementById(id);
+            const input = newItem.querySelector('.tag-input');
+            input.addEventListener('keydown', handleTagInput);
+        }
+
+        function collectEmojis() {
+            const emojis = {};
+            document.querySelectorAll('#emojis-list .editor-item').forEach(item => {
+                const category = item.querySelector('.editor-item-title').value.trim();
+                if (category) {
+                    const emojiList = [];
+                    item.querySelectorAll('.tag').forEach(tag => {
+                        const text = tag.childNodes[0].textContent.trim();
+                        if (text) emojiList.push(text);
+                    });
+                    if (emojiList.length > 0) {
+                        emojis[category] = emojiList;
+                    }
+                }
+            });
+            return emojis;
+        }
+
+        // ==================== SPRITESHEET GENERATOR ====================
+        let spriteRowCounter = 0;
+        const spriteRowData = {};
+
+        function addSpriteRow(animationName = '') {
+            const rowId = 'row-' + spriteRowCounter++;
+            spriteRowData[rowId] = { name: animationName, frames: [] };
+
+            const container = document.getElementById('sprite-rows-container');
+
+            const html = `
+                <div class="sprite-row" id="${rowId}">
+                    <div class="sprite-row-header">
+                        <div class="sprite-row-title">
+                            <span>Row ${Object.keys(spriteRowData).length - 1}:</span>
+                            <input type="text" class="row-name" value="${animationName}" placeholder="Animation name"
+                                   style="padding: 8px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; color: var(--text);">
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="removeSpriteRow('${rowId}')">🗑️ Remove Row</button>
+                    </div>
+                    <div class="frames-container" id="frames-${rowId}">
+                        <button class="add-frame-btn" onclick="triggerFrameUpload('${rowId}')">+</button>
+                    </div>
+                    <input type="file" class="hidden-input" id="upload-${rowId}" accept="image/*" multiple onchange="handleFrameUpload(event, '${rowId}')">
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeSpriteRow(rowId) {
+            delete spriteRowData[rowId];
+            document.getElementById(rowId).remove();
+            generateSpritesheet();
+        }
+
+        function triggerFrameUpload(rowId) {
+            document.getElementById(`upload-${rowId}`).click();
+        }
+
+        function handleFrameUpload(event, rowId) {
+            const files = Array.from(event.target.files);
+            const container = document.getElementById(`frames-${rowId}`);
+            const addBtn = container.querySelector('.add-frame-btn');
+
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const frameIndex = spriteRowData[rowId].frames.length;
+                        spriteRowData[rowId].frames.push(img);
+
+                        const frameEl = document.createElement('div');
+                        frameEl.className = 'frame-slot has-image';
+                        frameEl.draggable = true;
+                        frameEl.dataset.index = frameIndex;
+                        frameEl.innerHTML = `
+                            <img src="${e.target.result}" alt="Frame ${frameIndex}">
+                            <span class="frame-number">${frameIndex}</span>
+                            <button class="remove-btn" onclick="removeFrame('${rowId}', ${frameIndex}, this.parentElement)">✕</button>
+                        `;
+
+                        container.insertBefore(frameEl, addBtn);
+
+                        // Add drag and drop handlers
+                        frameEl.addEventListener('dragstart', handleDragStart);
+                        frameEl.addEventListener('dragover', handleDragOver);
+                        frameEl.addEventListener('drop', (e) => handleDrop(e, rowId));
+                        frameEl.addEventListener('dragend', handleDragEnd);
+
+                        generateSpritesheet();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            event.target.value = '';
+        }
+
+        function removeFrame(rowId, frameIndex, element) {
+            spriteRowData[rowId].frames.splice(frameIndex, 1);
+            element.remove();
+
+            // Update frame numbers
+            const container = document.getElementById(`frames-${rowId}`);
+            container.querySelectorAll('.frame-slot').forEach((frame, i) => {
+                frame.dataset.index = i;
+                frame.querySelector('.frame-number').textContent = i;
+            });
+
+            generateSpritesheet();
+        }
+
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = e.target.closest('.frame-slot');
+            e.dataTransfer.effectAllowed = 'move';
+            draggedElement.style.opacity = '0.5';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDrop(e, rowId) {
+            e.preventDefault();
+            const targetElement = e.target.closest('.frame-slot');
+
+            if (targetElement && draggedElement && targetElement !== draggedElement) {
+                const container = targetElement.parentElement;
+                const frames = Array.from(container.querySelectorAll('.frame-slot'));
+                const draggedIndex = frames.indexOf(draggedElement);
+                const targetIndex = frames.indexOf(targetElement);
+
+                // Swap in DOM
+                if (draggedIndex < targetIndex) {
+                    container.insertBefore(draggedElement, targetElement.nextSibling);
+                } else {
+                    container.insertBefore(draggedElement, targetElement);
+                }
+
+                // Swap in data
+                const temp = spriteRowData[rowId].frames[draggedIndex];
+                spriteRowData[rowId].frames[draggedIndex] = spriteRowData[rowId].frames[targetIndex];
+                spriteRowData[rowId].frames[targetIndex] = temp;
+
+                // Update frame numbers
+                container.querySelectorAll('.frame-slot').forEach((frame, i) => {
+                    frame.dataset.index = i;
+                    frame.querySelector('.frame-number').textContent = i;
+                });
+
+                generateSpritesheet();
+            }
+        }
+
+        function handleDragEnd(e) {
+            if (draggedElement) {
+                draggedElement.style.opacity = '1';
+                draggedElement = null;
+            }
+        }
+
+        function generateSpritesheet() {
+            const canvas = document.getElementById('spritesheet-canvas');
+            const ctx = canvas.getContext('2d');
+
+            const frameWidth = parseInt(document.getElementById('frame-width').value) || 128;
+            const frameHeight = parseInt(document.getElementById('frame-height').value) || 128;
+            const maxFrames = parseInt(document.getElementById('max-frames-row').value) || 4;
+
+            const rows = Object.values(spriteRowData);
+            const numRows = rows.length;
+            const numCols = maxFrames;
+
+            canvas.width = numCols * frameWidth;
+            canvas.height = numRows * frameHeight;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            rows.forEach((rowData, rowIndex) => {
+                rowData.frames.forEach((img, colIndex) => {
+                    if (colIndex < maxFrames) {
+                        ctx.drawImage(
+                            img,
+                            colIndex * frameWidth,
+                            rowIndex * frameHeight,
+                            frameWidth,
+                            frameHeight
+                        );
+                    }
+                });
+            });
+        }
+
+        function downloadSpritesheet() {
+            const canvas = document.getElementById('spritesheet-canvas');
+            const link = document.createElement('a');
+            link.download = 'spritesheet.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showNotification('Spritesheet downloaded!');
+        }
+
+        // ==================== JSON GENERATION ====================
+        function generateJSON() {
+            return {
+                meta: {
+                    name: document.getElementById('meta-name').value || 'My Pet',
+                    author: document.getElementById('meta-author').value || 'Anonymous',
+                    version: document.getElementById('meta-version').value || '1.0.0',
+                    description: document.getElementById('meta-description').value || ''
+                },
+                spritesheetUrl: document.getElementById('spritesheet-url').value || '',
+                spriteSize: parseInt(document.getElementById('sprite-size').value) || 128,
+                spriteColumns: parseInt(document.getElementById('sprite-columns').value) || 4,
+                physics: {
+                    gravity: parseFloat(document.getElementById('physics-gravity').value) || 0.5,
+                    walkSpeed: {
+                        min: parseFloat(document.getElementById('physics-walk-min').value) || 1,
+                        max: parseFloat(document.getElementById('physics-walk-max').value) || 2
+                    },
+                    jumpForce: parseFloat(document.getElementById('physics-jump').value) || 10,
+                    climbSpeed: parseFloat(document.getElementById('physics-climb').value) || 2
+                },
+                behaviors: collectBehaviors(),
+                sprites: collectSprites(),
+                emojis: collectEmojis(),
+                phrases: collectPhrases(),
+                reactions: collectReactions(),
+                platformBehavior: {
+                    enabled: document.getElementById('platform-enabled').value === 'true',
+                    preferPlatforms: document.getElementById('platform-prefer').value === 'true',
+                    platformJumpChance: parseFloat(document.getElementById('platform-jump-chance').value) || 0.3,
+                    edgePadding: parseInt(document.getElementById('platform-edge-padding').value) || 10
+                },
+                pettingConfig: {
+                    strokeThreshold: parseInt(document.getElementById('petting-stroke').value) || 20,
+                    directionChangeThreshold: parseInt(document.getElementById('petting-direction').value) || 3,
+                    happyThreshold: parseInt(document.getElementById('petting-happy').value) || 5,
+                    ecstaticThreshold: parseInt(document.getElementById('petting-ecstatic').value) || 12,
+                    decayRate: parseInt(document.getElementById('petting-decay').value) || 500,
+                    particlesEnabled: document.getElementById('petting-particles').value === 'true'
+                }
+            };
+        }
+
+        function updateJSONPreview() {
+            const json = generateJSON();
+            document.getElementById('json-preview').textContent = JSON.stringify(json, null, 2);
+        }
+
+        function downloadJSON() {
+            const json = generateJSON();
+            const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `${json.meta.name.replace(/\s+/g, '_').toLowerCase()}.json`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+            showNotification('JSON file downloaded!');
+        }
+
+        function copyJSON() {
+            const json = generateJSON();
+            navigator.clipboard.writeText(JSON.stringify(json, null, 2))
+                .then(() => showNotification('JSON copied to clipboard!'))
+                .catch(() => showNotification('Failed to copy', true));
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    loadFromJSON(json);
+                    showNotification('JSON imported successfully!');
+                } catch (err) {
+                    showNotification('Invalid JSON file', true);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function loadFromJSON(json) {
+            // Load meta
+            if (json.meta) {
+                document.getElementById('meta-name').value = json.meta.name || '';
+                document.getElementById('meta-author').value = json.meta.author || '';
+                document.getElementById('meta-version').value = json.meta.version || '1.0.0';
+                document.getElementById('meta-description').value = json.meta.description || '';
+            }
+
+            // Load spritesheet settings
+            document.getElementById('spritesheet-url').value = json.spritesheetUrl || '';
+            document.getElementById('sprite-size').value = json.spriteSize || 128;
+            document.getElementById('sprite-columns').value = json.spriteColumns || 4;
+
+            // Load physics
+            if (json.physics) {
+                document.getElementById('physics-gravity').value = json.physics.gravity || 0.5;
+                document.getElementById('physics-walk-min').value = json.physics.walkSpeed?.min || 1;
+                document.getElementById('physics-walk-max').value = json.physics.walkSpeed?.max || 2;
+                document.getElementById('physics-jump').value = json.physics.jumpForce || 10;
+                document.getElementById('physics-climb').value = json.physics.climbSpeed || 2;
+            }
+
+            // Load sprites
+            document.getElementById('sprites-list').innerHTML = '';
+            if (json.sprites) {
+                Object.entries(json.sprites).forEach(([name, data]) => {
+                    addSprite(name, data.frames, data.speed, data.row);
+                });
+            }
+
+            // Load behaviors
+            document.getElementById('behaviors-list').innerHTML = '';
+            if (json.behaviors) {
+                Object.entries(json.behaviors).forEach(([name, data]) => {
+                    addBehavior(
+                        name,
+                        data.duration?.[0] || 2000,
+                        data.duration?.[1] || 5000,
+                        data.next || [],
+                        data.weights || []
+                    );
+                });
+            }
+
+            // Load phrases
+            document.getElementById('phrases-list').innerHTML = '';
+            if (json.phrases) {
+                Object.entries(json.phrases).forEach(([category, phrases]) => {
+                    addPhraseCategory(category, phrases);
+                });
+            }
+
+            // Load reactions
+            document.getElementById('reactions-list').innerHTML = '';
+            if (json.reactions) {
+                Object.entries(json.reactions).forEach(([name, data]) => {
+                    addReaction(name, data.triggers || [], data.action || 'idle', data.phrases || []);
+                });
+            }
+
+            // Load emojis
+            document.getElementById('emojis-list').innerHTML = '';
+            if (json.emojis) {
+                Object.entries(json.emojis).forEach(([category, emojis]) => {
+                    addEmojiCategory(category, emojis);
+                });
+            }
+
+            // Load platform behavior
+            if (json.platformBehavior) {
+                document.getElementById('platform-enabled').value = json.platformBehavior.enabled ? 'true' : 'false';
+                document.getElementById('platform-prefer').value = json.platformBehavior.preferPlatforms ? 'true' : 'false';
+                document.getElementById('platform-jump-chance').value = json.platformBehavior.platformJumpChance || 0.3;
+                document.getElementById('platform-edge-padding').value = json.platformBehavior.edgePadding || 10;
+            }
+
+            // Load petting config
+            if (json.pettingConfig) {
+                document.getElementById('petting-stroke').value = json.pettingConfig.strokeThreshold || 20;
+                document.getElementById('petting-direction').value = json.pettingConfig.directionChangeThreshold || 3;
+                document.getElementById('petting-happy').value = json.pettingConfig.happyThreshold || 5;
+                document.getElementById('petting-ecstatic').value = json.pettingConfig.ecstaticThreshold || 12;
+                document.getElementById('petting-decay').value = json.pettingConfig.decayRate || 500;
+                document.getElementById('petting-particles').value = json.pettingConfig.particlesEnabled ? 'true' : 'false';
+            }
+
+            updateJSONPreview();
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function removeItem(id) {
+            document.getElementById(id).remove();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== INITIALIZATION ====================
+        function initializeDefaults() {
+            // Add default sprites
+            const defaultSprites = [
+                { name: 'idle', frames: 2, speed: 500, row: 0 },
+                { name: 'walk', frames: 4, speed: 150, row: 1 },
+                { name: 'sit', frames: 1, speed: 800, row: 2 },
+                { name: 'jump', frames: 1, speed: 200, row: 3 },
+                { name: 'fall', frames: 1, speed: 200, row: 4 },
+                { name: 'climb', frames: 1, speed: 200, row: 5 },
+                { name: 'sleep', frames: 2, speed: 500, row: 6 },
+                { name: 'drag', frames: 4, speed: 300, row: 7 },
+                { name: 'platformIdle', frames: 2, speed: 500, row: 0 },
+                { name: 'platformWalk', frames: 4, speed: 150, row: 1 },
+                { name: 'petted', frames: 2, speed: 300, row: 0 },
+                { name: 'pettedHappy', frames: 1, speed: 300, row: 8 },
+                { name: 'pettedEcstatic', frames: 1, speed: 300, row: 9 }
+            ];
+            defaultSprites.forEach(s => addSprite(s.name, s.frames, s.speed, s.row));
+
+            // Add default behaviors
+            const defaultBehaviorData = [
+                { name: 'idle', dMin: 2000, dMax: 5000, next: ['walk', 'sit', 'jump', 'idle'], weights: [0.2, 0.3, 0.1, 0.4] },
+                { name: 'walk', dMin: 3000, dMax: 6000, next: ['idle', 'sit', 'walk'], weights: [0.4, 0.2, 0.4] },
+                { name: 'sit', dMin: 4000, dMax: 8000, next: ['idle', 'walk'], weights: [0.6, 0.4] },
+                { name: 'jump', dMin: 500, dMax: 500, next: ['idle'], weights: [1] },
+                { name: 'fall', dMin: 100, dMax: 100, next: ['idle'], weights: [1] },
+                { name: 'climb', dMin: 2000, dMax: 5000, next: ['idle', 'climb'], weights: [0.7, 0.3] },
+                { name: 'sleep', dMin: 8000, dMax: 15000, next: ['idle'], weights: [1] },
+                { name: 'drag', dMin: 100, dMax: 100, next: ['fall'], weights: [1] },
+                { name: 'platformIdle', dMin: 3000, dMax: 7000, next: ['platformIdle', 'platformWalk', 'jump'], weights: [0.4, 0.4, 0.2] },
+                { name: 'platformWalk', dMin: 2000, dMax: 4000, next: ['platformIdle', 'platformWalk', 'jump'], weights: [0.4, 0.4, 0.2] }
+            ];
+            defaultBehaviorData.forEach(b => addBehavior(b.name, b.dMin, b.dMax, b.next, b.weights));
+
+            // Add default phrase categories
+            const defaultPhrases = {
+                'idle': ['...', '♪', 'Hmm...'],
+                'walk': ['♪', 'Walking around~'],
+                'sit': ['Taking a break.'],
+                'jump': ['Whee!'],
+                'fall': ['!'],
+                'drag': ['Hey!', 'Put me down!'],
+                'happy': ['♥', 'Yay!'],
+                'platform': ['Nice view!'],
+                'petted': ['Oh?', '...'],
+                'pettedHappy': ['Nice~', '...'],
+                'pettedEcstatic': ['♥♥♥', 'More!'],
+                'pettedEnd': ['Aww...']
+            };
+            Object.entries(defaultPhrases).forEach(([cat, phrases]) => addPhraseCategory(cat, phrases));
+
+            // Add default reactions
+            addReaction('happy', ['happy', 'cute', 'love'], 'happy', ['♥', 'Thank you!']);
+            addReaction('greeting', ['hello', 'hi '], 'wave', ['Hello!', 'Hi there!']);
+
+            // Add default emojis
+            const defaultEmojis = {
+                'idle': ['🐱', '😺'],
+                'walk': ['🐱', '🐈'],
+                'sit': ['😸', '😺'],
+                'jump': ['🙀', '😺'],
+                'fall': ['🙀', '😿'],
+                'climb': ['🐱', '🐈'],
+                'sleep': ['😴', '💤'],
+                'drag': ['😾'],
+                'platformIdle': ['🐱', '😺'],
+                'platformWalk': ['🐱', '🐈'],
+                'petted': ['😊', '😌'],
+                'pettedHappy': ['😸', '😻'],
+                'pettedEcstatic': ['😻', '💕', '🥰', '💖']
+            };
+            Object.entries(defaultEmojis).forEach(([cat, emojis]) => addEmojiCategory(cat, emojis));
+
+            // Add default sprite rows for spritesheet generator
+            const defaultRowNames = ['idle', 'walk', 'sit', 'jump', 'fall', 'climb', 'sleep', 'drag', 'pettedHappy', 'pettedEcstatic'];
+            defaultRowNames.forEach(name => addSpriteRow(name));
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDefaults();
+            updateJSONPreview();
+
+            // Add input change listeners to update preview
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                el.addEventListener('change', () => {
+                    if (document.querySelector('.tab[data-tab="export"]').classList.contains('active')) {
+                        updateJSONPreview();
+                    }
+                });
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+S to download JSON
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                downloadJSON();
+            }
+            // Ctrl+Shift+C to copy JSON
+            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                e.preventDefault();
+                copyJSON();
+            }
+        });
+    </script>
+</body>
+</html>
